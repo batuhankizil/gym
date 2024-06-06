@@ -35,6 +35,8 @@ def start_video():
             processed_frame, play_sound = process_frame.process(frame, pose, exercise="punches")
         elif selected_exercise == "leg-curls":
             processed_frame, play_sound = process_frame.process(frame, pose, exercise="leg-curls")
+        elif selected_exercise == "high-knees":
+            processed_frame, play_sound = process_frame.process(frame, pose, exercise="high_knees")
 
         cv2.imshow('Egzersiz Algılama', processed_frame)
 
@@ -100,7 +102,7 @@ def main():
     leg_curls_button = tk.Button(root, text="Leg Curls", command=select_leg_curls)
     leg_curls_button.pack(pady=5)
 
-    high_knees_button = tk.Button(root, text="High Knees", command=select_leg_curls)
+    high_knees_button = tk.Button(root, text="High Knees", command=select_high_knees)
     high_knees_button.pack(pady=5)
 
     exit_button = tk.Button(root, text="Çıkış", command=root.destroy)

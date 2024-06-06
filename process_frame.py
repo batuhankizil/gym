@@ -458,34 +458,43 @@ class ProcessFrame:
                     return True
                 return False
 
+            def puanlama(puan):
+                hareket_tamamlandi = False  # Hareket tamamlandı mı kontrolü için bir bayrak
+                while True:
+                    ret, frame = cap.read()
+                    if not ret:
+                        break
+
+                    image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    results = pose.process(image)
+
+                    if results.pose_landmarks:
+                        mp_drawing.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+                        landmarks = results.pose_landmarks.landmark
+
+                        if is_punch(
+                                landmarks) and not hareket_tamamlandi:  # Hareket tamamlanmamışsa ve hareket algılandıysa
+                            hareket_tamamlandi = True  # Hareket tamamlandı bayrağını True yap
+                            puan += 10  # Hareket doğruysa 10 puan ekle
+                            cv2.putText(frame, 'Punch: Dogru', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2,
+                                        cv2.LINE_AA)
+
+                        elif not is_punch(landmarks):  # Hareket tamamlanmadıysa ve hareket algılanmadıysa
+                            hareket_tamamlandi = False  # Hareket tamamlandı bayrağını False yap
+
+                        cv2.putText(frame, f'Puan: {puan}', (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2,
+                                    cv2.LINE_AA)  # Ekranın köşesine puanı yazdır
+
+                    cv2.imshow('Punch Detection', frame)
+
+                    if cv2.waitKey(5) & 0xFF == 27:
+                        break
+
+                cap.release()
+                cv2.destroyAllWindows()
+
             cap = cv2.VideoCapture(0)
-
-            while cap.isOpened():
-                ret, frame = cap.read()
-                if not ret:
-                    break
-
-                image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                results = pose.process(image)
-
-                if results.pose_landmarks:
-                    mp_drawing.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
-                    landmarks = results.pose_landmarks.landmark
-
-                    if is_punch(landmarks):
-                        cv2.putText(frame, 'Punch: Dogru', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2,
-                                    cv2.LINE_AA)
-                    else:
-                        cv2.putText(frame, 'Punch: Yanlis', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2,
-                                    cv2.LINE_AA)
-
-                cv2.imshow('Punch Detection', frame)
-
-                if cv2.waitKey(5) & 0xFF == 27:
-                    break
-
-            cap.release()
-            cv2.destroyAllWindows()
+            puanlama(0)  # Fonksiyonu çağırarak işlevi gerçekleştirin
 
             pass
 
@@ -571,6 +580,8 @@ class ProcessFrame:
             pass
 
 
+
+
         elif exercise == "high_knees":
 
             mp_pose = mp.solutions.pose
@@ -620,17 +631,14 @@ class ProcessFrame:
                         score += 10  # Puanı artır
 
                         cv2.putText(frame, 'High Knees: Dogru', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2,
-
                                     cv2.LINE_AA)
 
                     else:
 
                         cv2.putText(frame, 'High Knees: Yanlis', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2,
-
                                     cv2.LINE_AA)
 
                 cv2.putText(frame, f'Score: {score}', (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2,
-
                             cv2.LINE_AA)
 
                 cv2.imshow('High Knees Detection', frame)
